@@ -35,6 +35,14 @@ export default function App() {
 
   const exercises = useMemo(() => distinctExercises(sets), [sets])
 
+  const lastSet = useMemo(
+    () =>
+      sets.length > 0
+        ? sets.reduce((a, b) => (b.createdAt > a.createdAt ? b : a))
+        : null,
+    [sets],
+  )
+
   // Keep the chart pointed at a real exercise as data changes.
   const selectedExercise =
     exercises.find((e) => e === chartExercise) ?? exercises[0] ?? ''
@@ -73,7 +81,9 @@ export default function App() {
       </header>
 
       <main className="app-main">
-        {tab === 'log' && <LogForm exercises={exercises} onAdd={addSet} />}
+        {tab === 'log' && (
+          <LogForm exercises={exercises} lastSet={lastSet} onAdd={addSet} />
+        )}
         {tab === 'history' && (
           <HistoryList sets={sets} onDelete={handleDelete} />
         )}

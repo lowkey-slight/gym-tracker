@@ -1,8 +1,10 @@
 import { useState } from 'react'
 import { todayLocalISO } from '../lib/dates'
+import type { LiftSet } from '../types'
 
 interface Props {
   exercises: string[]
+  lastSet: LiftSet | null
   onAdd(input: {
     exercise: string
     weightKg: number
@@ -11,12 +13,25 @@ interface Props {
   }): void
 }
 
-export function LogForm({ exercises, onAdd }: Props) {
+export function LogForm({ exercises, lastSet, onAdd }: Props) {
   const [exercise, setExercise] = useState('')
   const [weight, setWeight] = useState('')
   const [reps, setReps] = useState('')
   const [date, setDate] = useState(todayLocalISO())
   const [saved, setSaved] = useState(false)
+  const [repeatDismissed, setRepeatDismissed] = useState(false)
+
+  // Offer to repeat the last logged set, but only while the form is untouched.
+  const formPristine = exercise === '' && weight === '' && reps === ''
+  const showRepeatPrompt = lastSet !== null && !repeatDismissed && formPristine
+
+  function repeatLastSet() {
+    if (!lastSet) return
+    setExercise(lastSet.exercise)
+    setWeight(String(lastSet.weightKg))
+    setReps(String(lastSet.reps))
+    setRepeatDismissed(true)
+  }
 
   const weightKg = parseFloat(weight)
   const repsNum = parseInt(reps, 10)
@@ -39,6 +54,28 @@ export function LogForm({ exercises, onAdd }: Props) {
 
   return (
     <form className="log-form" onSubmit={submit}>
+      {showRepeatPrompt && (
+        <div className="repeat-card" role="group" aria-label="Repeat last set">
+          <p>
+            Repeat your last set?
+            <br />
+            <strong>{lastSet.exercise}</strong> — {lastSet.weightKg} kg ×{' '}
+            {lastSet.reps}
+          </p>
+          <div className="repeat-actions">
+            <button type="button" className="btn-primary" onClick={repeatLastSet}>
+              Repeat it
+            </button>
+            <button
+              type="button"
+              className="btn-secondary"
+              onClick={() => setRepeatDismissed(true)}
+            >
+              Start fresh
+            </button>
+          </div>
+        </div>
+      )}
       <label>
         Exercise
         <input
