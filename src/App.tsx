@@ -82,7 +82,12 @@ export default function App() {
 
       <main className="app-main">
         {tab === 'log' && (
-          <LogForm exercises={exercises} lastSet={lastSet} onAdd={addSet} />
+          <LogForm
+            exercises={exercises}
+            sets={sets}
+            lastSet={lastSet}
+            onAdd={addSet}
+          />
         )}
         {tab === 'history' && (
           <HistoryList sets={sets} onDelete={handleDelete} />

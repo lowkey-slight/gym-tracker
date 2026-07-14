@@ -187,6 +187,33 @@ button {
   gap: 10px;
 }
 
+.session-strip {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.session-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.session-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.session-chip {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 0.85rem;
+  color: var(--text);
+}
+
 /* ---------- History ---------- */
 
 .history {
