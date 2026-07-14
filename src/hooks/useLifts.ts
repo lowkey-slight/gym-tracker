@@ -1,26 +1,62 @@
 import { useEffect, useMemo, useState } from 'react'
+import {
+  onAuthStateChanged,
+  signInWithPopup,
+  signOut as firebaseSignOut,
+  type User,
+} from 'firebase/auth'
+import { auth, googleProvider } from '../firebase'
 import type { LiftSet } from '../types'
 import { LocalStorageAdapter } from '../storage/LocalStorageAdapter'
+import { FirestoreAdapter } from '../storage/FirestoreAdapter'
 import type { StorageAdapter } from '../storage/StorageAdapter'
 
-const adapter: StorageAdapter = new LocalStorageAdapter()
+const localAdapter = new LocalStorageAdapter()
 
 export function useLifts() {
+  const [user, setUser] = useState<User | null>(() => auth.currentUser)
   const [allSets, setAllSets] = useState<LiftSet[]>([])
+
+  useEffect(() => onAuthStateChanged(auth, setUser), [])
+
+  // Signed in -> Firestore (with its own offline cache); signed out -> localStorage.
+  const adapter: StorageAdapter = useMemo(
+    () => (user ? new FirestoreAdapter(user.uid) : localAdapter),
+    [user],
+  )
 
   useEffect(() => {
     let cancelled = false
-    adapter.load().then((sets) => {
-      if (!cancelled) setAllSets(sets)
-    })
+    setAllSets([])
+    adapter
+      .load()
+      .then((sets) => {
+        if (!cancelled) setAllSets(sets)
+      })
+      .catch((err) => console.error('Failed to load sets:', err))
     const unsubscribe = adapter.subscribe(setAllSets)
     return () => {
       cancelled = true
       unsubscribe()
     }
-  }, [])
+  }, [adapter])
 
-  // Everything the UI shows excludes tombstoned sets.
+  // On sign-in, fold any device-local sets into the cloud. Union-by-id makes
+  // this idempotent, so re-running after an interrupted attempt is harmless.
+  useEffect(() => {
+    if (!user) return
+    const migratedFlag = `gym-lifts/migrated/${user.uid}`
+    if (localStorage.getItem(migratedFlag)) return
+    const cloud = new FirestoreAdapter(user.uid)
+    localAdapter
+      .load()
+      .then(async (local) => {
+        if (local.length > 0) await cloud.mergeSets(local)
+        localStorage.setItem(migratedFlag, '1')
+      })
+      .catch((err) => console.error('Migration to cloud failed:', err))
+  }, [user])
+
   const sets = useMemo(() => allSets.filter((s) => !s.deleted), [allSets])
 
   async function addSet(input: {
@@ -41,11 +77,14 @@ export function useLifts() {
 
   return {
     sets,
+    user,
     addSet,
     deleteSet: (id: string) => adapter.deleteSet(id),
     restoreSet: (id: string) => adapter.restoreSet(id),
     importSets: (incoming: LiftSet[]) => adapter.mergeSets(incoming),
     /** Full data including tombstones, for export/backup. */
     exportSets: () => adapter.load(),
+    signIn: () => signInWithPopup(auth, googleProvider),
+    signOut: () => firebaseSignOut(auth),
   }
 }

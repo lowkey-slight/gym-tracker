@@ -1,7 +1,11 @@
 import { useRef, useState } from 'react'
+import type { User } from 'firebase/auth'
 import type { LiftSet } from '../types'
 
 interface Props {
+  user: User | null
+  onSignIn(): Promise<unknown>
+  onSignOut(): Promise<void>
   onExport(): Promise<LiftSet[]>
   onImport(sets: LiftSet[]): void
   onClose(): void
@@ -20,9 +24,26 @@ function isValidSet(value: unknown): value is LiftSet {
   )
 }
 
-export function SettingsSheet({ onExport, onImport, onClose }: Props) {
+export function SettingsSheet({
+  user,
+  onSignIn,
+  onSignOut,
+  onExport,
+  onImport,
+  onClose,
+}: Props) {
   const fileInput = useRef<HTMLInputElement>(null)
   const [message, setMessage] = useState('')
+
+  async function signIn() {
+    try {
+      await onSignIn()
+      setMessage('Signed in — your sets now sync to the cloud.')
+    } catch (err) {
+      console.error(err)
+      setMessage('Sign-in was cancelled or failed. Try again.')
+    }
+  }
 
   async function exportData() {
     const sets = await onExport()
@@ -62,13 +83,36 @@ export function SettingsSheet({ onExport, onImport, onClose }: Props) {
   return (
     <div className="sheet-backdrop" onClick={onClose}>
       <div className="sheet" onClick={(e) => e.stopPropagation()}>
+        <h2>Cloud sync</h2>
+        {user ? (
+          <>
+            <p className="sheet-hint">
+              Signed in as <strong>{user.email}</strong>. Sets sync to your
+              private cloud storage and across devices; everything still works
+              offline.
+            </p>
+            <button type="button" className="btn-secondary" onClick={onSignOut}>
+              Sign out
+            </button>
+          </>
+        ) : (
+          <>
+            <p className="sheet-hint">
+              Sign in with Google to back up your sets to the cloud and sync
+              them across devices. Without it, data stays on this device only.
+            </p>
+            <button type="button" className="btn-primary" onClick={signIn}>
+              Sign in with Google
+            </button>
+          </>
+        )}
+
         <h2>Backup</h2>
         <p className="sheet-hint">
-          Data lives in this browser. Export a JSON backup, or import one from
-          another device.
+          Export a JSON backup, or import one from another device.
         </p>
         <div className="sheet-actions">
-          <button type="button" className="btn-primary" onClick={exportData}>
+          <button type="button" className="btn-secondary" onClick={exportData}>
             Export JSON
           </button>
           <button

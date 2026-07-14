@@ -16,8 +16,17 @@ const TABS: { id: Tab; label: string; icon: string }[] = [
 ]
 
 export default function App() {
-  const { sets, addSet, deleteSet, restoreSet, importSets, exportSets } =
-    useLifts()
+  const {
+    sets,
+    user,
+    addSet,
+    deleteSet,
+    restoreSet,
+    importSets,
+    exportSets,
+    signIn,
+    signOut,
+  } = useLifts()
   const [tab, setTab] = useState<Tab>('log')
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [chartExercise, setChartExercise] = useState('')
@@ -56,10 +65,10 @@ export default function App() {
         <button
           type="button"
           className="btn-icon"
-          aria-label="Backup settings"
+          aria-label={user ? `Sync settings, signed in` : 'Sync settings'}
           onClick={() => setSettingsOpen(true)}
         >
-          ⚙️
+          {user ? '☁️' : '⚙️'}
         </button>
       </header>
 
@@ -114,6 +123,9 @@ export default function App() {
 
       {settingsOpen && (
         <SettingsSheet
+          user={user}
+          onSignIn={signIn}
+          onSignOut={signOut}
           onExport={exportSets}
           onImport={importSets}
           onClose={() => setSettingsOpen(false)}

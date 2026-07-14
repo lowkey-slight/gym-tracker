@@ -28,16 +28,17 @@ Push to `main` on GitHub with Pages set to "GitHub Actions"
 `vite.config.ts` sets `base: '/gym-tracker/'` — if the repo is named something
 else, update that.
 
-## Phase B — cloud sync (planned)
+## Cloud sync (Firebase)
 
-Storage is already behind `src/storage/StorageAdapter.ts`; every record has a
-UUID + `createdAt`, so cloud merge is union-by-id.
+Optional Google sign-in (gear icon → Sign in with Google) syncs sets to
+Firestore at `users/{uid}/sets/{id}` with offline persistence; signed-out use
+stays on localStorage. On first sign-in, device-local sets are merged into the
+cloud (union by UUID, tombstones honored — see
+`src/storage/FirestoreAdapter.ts` and the migration in `src/hooks/useLifts.ts`).
 
-1. Create a Firebase project (free Spark tier, no card): enable **Google
-   sign-in** (Authentication) and **Firestore**.
-2. Add the `firebase` SDK and a `FirestoreAdapter` implementing
-   `StorageAdapter`, storing docs at `users/{uid}/sets/{id}` with offline
-   persistence enabled.
-3. Security rules: users can only read/write `users/{uid}/**`.
-4. On first sign-in, merge localStorage sets into Firestore (tombstones
-   honored). Signed-out use keeps working on localStorage.
+Firebase project: `gymlogs-202ee` (Spark/free tier, Firestore in asia-south2).
+Security rules restrict each user to `users/{uid}/**`. The config in
+`src/firebase.ts` is public client identifiers; the rules are the security
+boundary. If you fork this, create your own Firebase project, enable Google
+sign-in, add your Pages domain to Authentication → Authorized domains, and
+swap the config.
