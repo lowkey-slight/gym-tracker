@@ -244,29 +244,81 @@ button {
   gap: 8px;
 }
 
-.set-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+.day-table {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 12px;
-  padding: 10px 6px 10px 14px;
+  overflow: hidden;
 }
 
-.set-info {
+.exercise-block + .exercise-block {
+  border-top: 1px solid var(--border);
+}
+
+.exercise-toggle {
+  width: 100%;
   display: flex;
-  flex-direction: column;
-  gap: 2px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px;
+  min-height: 52px;
+  background: none;
+  border: none;
+  color: var(--text);
+  font-size: 1rem;
+  text-align: left;
 }
 
-.set-exercise {
+.exercise-toggle-name {
   font-weight: 600;
 }
 
-.set-detail {
+.exercise-toggle-meta {
   color: var(--text-muted);
   font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.exercise-toggle-arrow {
+  color: var(--accent);
+}
+
+.sets-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+
+.sets-table th {
+  text-align: left;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--text-muted);
+  font-weight: 600;
+  padding: 4px 14px;
+}
+
+.sets-table td {
+  padding: 6px 14px;
+  border-top: 1px solid var(--border);
+}
+
+.sets-table td:last-child {
+  text-align: right;
+  padding: 0 6px;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
 }
 
 .btn-delete {
