@@ -7,6 +7,7 @@ import {
 } from 'firebase/auth'
 import { auth, googleProvider } from '../firebase'
 import type { LiftSet } from '../types'
+import { distinctExercises } from '../lib/volume'
 import { LocalStorageAdapter } from '../storage/LocalStorageAdapter'
 import { FirestoreAdapter } from '../storage/FirestoreAdapter'
 import type { StorageAdapter } from '../storage/StorageAdapter'
@@ -59,6 +60,10 @@ export function useLifts() {
 
   const sets = useMemo(() => allSets.filter((s) => !s.deleted), [allSets])
 
+  // Every exercise ever typed, even if all its sets were later deleted —
+  // tombstones are kept, so the library never forgets a name.
+  const exerciseLibrary = useMemo(() => distinctExercises(allSets), [allSets])
+
   async function addSet(input: {
     exercise: string
     weightKg: number
@@ -77,6 +82,7 @@ export function useLifts() {
 
   return {
     sets,
+    exerciseLibrary,
     user,
     addSet,
     deleteSet: (id: string) => adapter.deleteSet(id),

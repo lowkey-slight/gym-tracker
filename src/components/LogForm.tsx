@@ -21,6 +21,9 @@ export function LogForm({ exercises, sets, lastSet, onAdd }: Props) {
   const [date, setDate] = useState(todayLocalISO())
   const [saved, setSaved] = useState(false)
   const [repeatDismissed, setRepeatDismissed] = useState(false)
+  const [showAllChips, setShowAllChips] = useState(false)
+
+  const visibleChips = showAllChips ? exercises : exercises.slice(0, 6)
 
   // Offer to repeat the last logged set, but only while the form is untouched.
   const formPristine = exercise === '' && weight === '' && reps === ''
@@ -106,8 +109,8 @@ export function LogForm({ exercises, sets, lastSet, onAdd }: Props) {
       </label>
 
       {exercises.length > 0 && (
-        <div className="chips" role="listbox" aria-label="Recent exercises">
-          {exercises.slice(0, 6).map((name) => (
+        <div className="chips" role="listbox" aria-label="Saved exercises">
+          {visibleChips.map((name) => (
             <button
               key={name}
               type="button"
@@ -117,6 +120,15 @@ export function LogForm({ exercises, sets, lastSet, onAdd }: Props) {
               {name}
             </button>
           ))}
+          {exercises.length > 6 && (
+            <button
+              type="button"
+              className="chip chip-more"
+              onClick={() => setShowAllChips((v) => !v)}
+            >
+              {showAllChips ? 'Show less' : `+${exercises.length - 6} more`}
+            </button>
+          )}
         </div>
       )}
 

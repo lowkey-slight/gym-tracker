@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useLifts } from './hooks/useLifts'
-import { dailyVolume, distinctExercises } from './lib/volume'
+import { dailyVolume, exerciseStats } from './lib/volume'
 import { LogForm } from './components/LogForm'
 import { HistoryList } from './components/HistoryList'
 import { ProgressChart } from './components/ProgressChart'
 import { ExercisePicker } from './components/ExercisePicker'
 import { SettingsSheet } from './components/SettingsSheet'
+import { LifetimeStats } from './components/LifetimeStats'
 
 type Tab = 'log' | 'history' | 'progress'
 
@@ -18,6 +19,7 @@ const TABS: { id: Tab; label: string; icon: string }[] = [
 export default function App() {
   const {
     sets,
+    exerciseLibrary,
     user,
     addSet,
     deleteSet,
@@ -33,7 +35,8 @@ export default function App() {
   const [undoId, setUndoId] = useState<string | null>(null)
   const undoTimer = useRef<number | undefined>(undefined)
 
-  const exercises = useMemo(() => distinctExercises(sets), [sets])
+  const exercises = exerciseLibrary
+  const stats = useMemo(() => exerciseStats(sets), [sets])
 
   const lastSet = useMemo(
     () =>
@@ -104,7 +107,10 @@ export default function App() {
                 Log some sets first — your progress will show up here.
               </p>
             ) : (
-              <ProgressChart data={chartData} exercise={selectedExercise} />
+              <>
+                <ProgressChart data={chartData} exercise={selectedExercise} />
+                <LifetimeStats stats={stats} />
+              </>
             )}
           </>
         )}

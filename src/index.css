@@ -127,6 +127,11 @@ select:focus {
   font-weight: 600;
 }
 
+.chip-more {
+  border-style: dashed;
+  color: var(--text-muted);
+}
+
 .btn-primary {
   padding: 14px;
   min-height: 48px;
@@ -289,6 +294,46 @@ button {
 .chart-card h2 {
   font-size: 0.95rem;
   margin: 0 0 10px 8px;
+}
+
+.stats-card {
+  margin-top: 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px 16px;
+}
+
+.stats-card h2 {
+  font-size: 0.95rem;
+  margin: 0 0 10px;
+}
+
+.stats-card ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.stats-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.stats-name {
+  font-weight: 600;
+  min-width: 0;
+}
+
+.stats-detail {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  white-space: nowrap;
 }
 
 /* ---------- Shared ---------- */
